@@ -2,6 +2,13 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # Netlify's build image sets NODE_ENV=production, which makes a plain
+  # `npm install` skip devDependencies — but @tailwindcss/vite (and vite,
+  # typescript, etc.) are devDependencies that the build itself needs.
+  # This flag forces npm to install them anyway.
+  NPM_FLAGS = "--include=dev"
+
 # Client-side routing (React Router) — without this, refreshing or deep-
 # linking to any route other than "/" (e.g. /matrix, /distribution-hub)
 # 404s, because Netlify looks for a matching file on disk instead of
