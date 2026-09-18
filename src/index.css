@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+/* Token set intentionally mirrors Phase 2 frontend's src/index.css (same
+ * green brand palette, same font stack) so screens sit comfortably next to
+ * existing product screens in a client demo, and so this file is a
+ * near-drop-in if the prototype is folded into that repo later. */
+@theme {
+  --color-brand: #16a34a;
+  --color-brand-dark: #15803d;
+  --color-brand-soft: #eaf7ee;
+
+  --color-ink: #1f2433;
+  --color-ink-soft: #4a5163;
+  --color-muted: #6b7384;
+
+  --color-success: #12b76a;
+  --color-success-soft: #ecfdf3;
+  --color-warning: #f79009;
+  --color-warning-soft: #fffaeb;
+  --color-warning-dark: #b54708;
+  --color-danger: #f04438;
+  --color-danger-soft: #fef3f2;
+  --color-info: #16a34a;
+  --color-info-soft: #eafbf0;
+
+  --color-line: #e4e7ef;
+  --color-canvas: #fafafa;
+  --color-sidebar: #06381c;
+  --color-sidebar-hover: #0a4a28;
+  --color-sidebar-border: rgba(255, 255, 255, 0.12);
+  --color-sidebar-text: rgba(255, 255, 255, 0.72);
+
+  --color-primary-50: #e7f7ec;
+  --color-primary-100: #cff0da;
+  --color-primary-200: #9fe0b6;
+  --color-primary-300: #16a34a;
+  --color-primary-500: #0f8a3e;
+  --color-primary-700: #0a632c;
+  --color-primary: #06381c;
+  --color-primary-dark: #042813;
+  --color-primary-soft: #e7f7ec;
+
+  --color-gray-50: #f7f7f7;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e9eaeb;
+  --color-gray-300: #d5d7da;
+  --color-gray-500: #717680;
+  --color-gray-600: #535862;
+  --color-gray-700: #414651;
+  --color-gray-800: #252b37;
+
+  /* Training Matrix status palette — 7 distinct statuses (M7). Kept
+   * separate from the generic status tokens above because the Matrix
+   * legend has to stay internally consistent and colourblind-distinguishable
+   * across 7 values at once, not just pass/fail. -soft is the pill
+   * background; -dot is the saturated fill used for the dense grid, where
+   * a pale pill-background colour would be nearly invisible at 8px. */
+  --color-matrix-not-required: #eef0f6;
+  --color-matrix-not-required-text: #6b7384;
+  --color-matrix-not-required-dot: #c2c8d6;
+  --color-matrix-required: #fef3f2;
+  --color-matrix-required-text: #b42318;
+  --color-matrix-required-dot: #f04438;
+  --color-matrix-allocated: #fffaeb;
+  --color-matrix-allocated-text: #b54708;
+  --color-matrix-allocated-dot: #f79009;
+  --color-matrix-in-progress: #eafbf0;
+  --color-matrix-in-progress-text: #106b32;
+  --color-matrix-in-progress-dot: #3aa76d;
+  --color-matrix-completed: #ecfdf3;
+  --color-matrix-completed-text: #027a48;
+  --color-matrix-completed-dot: #12b76a;
+  --color-matrix-renewal-due: #fff4e5;
+  --color-matrix-renewal-due-text: #b54708;
+  --color-matrix-renewal-due-dot: #dc8a1e;
+  --color-matrix-overdue: #fef3f2;
+  --color-matrix-overdue-text: #d12a2a;
+  --color-matrix-overdue-dot: #d12a2a;
+
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+
+  --shadow-card: 0px 4px 16px 0px rgba(0, 0, 0, 0.08);
+  --shadow-lift: 0 18px 40px -16px rgba(6, 56, 28, 0.22);
+  --shadow-popover: 0 8px 24px -8px rgba(15, 23, 42, 0.18);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    background: var(--color-canvas);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--color-primary-100);
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
