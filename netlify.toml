@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Client-side routing (React Router) — without this, refreshing or deep-
+# linking to any route other than "/" (e.g. /matrix, /distribution-hub)
+# 404s, because Netlify looks for a matching file on disk instead of
+# falling through to index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
