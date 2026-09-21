@@ -13,14 +13,20 @@ import { useActivePersona } from "@/lib/store/personaStore";
 import { listPlannedTraining, listTrainingGaps, listRequirements, listMatrixCells } from "@/lib/api/matrix";
 import { listMembers } from "@/lib/api/organisations";
 import { useToastStore } from "@/lib/store/toastStore";
-import type { PlannedTraining, TrainingGap, TrainingSource } from "@/contracts";
+import { TARGET_OPTIONS_BASE } from "@/lib/constants/targets";
+import type { PlannedTraining, TrainingGap, TrainingSource, PlannedTrainingPriority } from "@/contracts";
 import { CalendarPlus, MapPin, Building2, X, Users, CheckCircle2 } from "lucide-react";
 
 const SOURCE_LABEL: Record<string, string> = {
   platform_course: "Platform course",
   virtual: "Virtual",
   at_venue: "At-venue",
-  external: "External",
+};
+
+const PRIORITY_TONE: Record<PlannedTrainingPriority, "danger" | "warning" | "neutral"> = {
+  high: "danger",
+  medium: "warning",
+  low: "neutral",
 };
 
 export function WorkforcePlannerPage() {
@@ -86,13 +92,22 @@ export function WorkforcePlannerPage() {
                   <Card key={p.id}>
                     <CardBody>
                       <div className="mb-2 flex items-center justify-between">
-                        <Badge tone="brand">{SOURCE_LABEL[p.source]}</Badge>
+                        <div className="flex items-center gap-1.5">
+                          <Badge tone="brand">{SOURCE_LABEL[p.source]}</Badge>
+                          <Badge tone={PRIORITY_TONE[p.priority]}>{p.priority}</Badge>
+                        </div>
                         <span className="text-xs text-muted">{new Date(p.scheduledDate).toLocaleDateString()}</span>
                       </div>
                       <p className="text-sm font-semibold text-ink">{p.title}</p>
+                      {p.reason && <p className="mt-0.5 text-xs text-muted">{p.reason}</p>}
+                      {p.targetLabel && <p className="mt-0.5 text-xs text-ink-soft">For: {p.targetLabel}</p>}
                       {p.location && (
                         <p className="mt-1 flex items-center gap-1 text-xs text-muted"><MapPin className="h-3 w-3" /> {p.location}</p>
                       )}
+                      <div className="mt-1 flex items-center justify-between text-xs text-muted">
+                        {p.ownerName && <span>Owner: {p.ownerName}</span>}
+                        {p.budget != null && <span>Budget: £{p.budget.toLocaleString()}</span>}
+                      </div>
                       <div className="mt-3">
                         <div className="mb-1 flex items-center justify-between text-xs">
                           <span className="text-muted">{p.placesAssigned} assigned</span>
@@ -212,6 +227,12 @@ export function WorkforcePlannerPage() {
               placesAssigned: 0,
               location: values.location || null,
               provider: values.provider || null,
+              reason: values.reason || null,
+              targetLabel: values.targetLabel || null,
+              budget: values.budget ? Number(values.budget) : null,
+              priority: values.priority,
+              ownerName: values.ownerName || null,
+              notes: values.notes || null,
             };
             setPlanned((prev) => [newItem, ...(prev ?? [])]);
             setCreateOpen(false);
@@ -288,7 +309,21 @@ function PlanTrainingForm({
   onSubmit,
 }: {
   requirements: { id: string; title: string }[];
-  onSubmit: (v: { requirementId: string; title: string; source: TrainingSource; scheduledDate: string; placesRequired: number; location: string; provider: string }) => void;
+  onSubmit: (v: {
+    requirementId: string;
+    title: string;
+    source: TrainingSource;
+    scheduledDate: string;
+    placesRequired: number;
+    location: string;
+    provider: string;
+    reason: string;
+    targetLabel: string;
+    budget: string;
+    priority: PlannedTrainingPriority;
+    ownerName: string;
+    notes: string;
+  }) => void;
 }) {
   const [requirementId, setRequirementId] = useState("");
   const [title, setTitle] = useState("");
@@ -297,6 +332,12 @@ function PlanTrainingForm({
   const [placesRequired, setPlacesRequired] = useState(10);
   const [location, setLocation] = useState("");
   const [provider, setProvider] = useState("");
+  const [reason, setReason] = useState("");
+  const [targetLabel, setTargetLabel] = useState("");
+  const [budget, setBudget] = useState("");
+  const [priority, setPriority] = useState<PlannedTrainingPriority>("medium");
+  const [ownerName, setOwnerName] = useState("");
+  const [notes, setNotes] = useState("");
 
   const valid = (requirementId || title.trim()) && scheduledDate && placesRequired > 0;
 
@@ -321,7 +362,6 @@ function PlanTrainingForm({
           <option value="virtual">Virtual</option>
           <option value="at_venue">At-venue</option>
           <option value="platform_course">Platform course</option>
-          <option value="external">External</option>
         </Select>
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -335,6 +375,35 @@ function PlanTrainingForm({
         </div>
       </div>
       <div>
+        <Label>Reason required (why the company knows it'll need this)</Label>
+        <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. New regulatory requirement" />
+      </div>
+      <div>
+        <Label>Department / Team / Role</Label>
+        <Select value={targetLabel} onChange={(e) => setTargetLabel(e.target.value)}>
+          <option value="">Not yet targeted…</option>
+          {TARGET_OPTIONS_BASE.map((t) => <option key={t} value={t}>{t}</option>)}
+        </Select>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label>Budget (optional)</Label>
+          <Input type="number" min={0} value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="£" />
+        </div>
+        <div>
+          <Label>Priority</Label>
+          <Select value={priority} onChange={(e) => setPriority(e.target.value as PlannedTrainingPriority)}>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </Select>
+        </div>
+      </div>
+      <div>
+        <Label>Owner (optional)</Label>
+        <Input value={ownerName} onChange={(e) => setOwnerName(e.target.value)} placeholder="e.g. Priya Nair" />
+      </div>
+      <div>
         <Label>Location (optional)</Label>
         <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. London HQ — Training Room 2" />
       </div>
@@ -342,10 +411,14 @@ function PlanTrainingForm({
         <Label>Provider (optional)</Label>
         <Input value={provider} onChange={(e) => setProvider(e.target.value)} placeholder="e.g. St John Ambulance" />
       </div>
+      <div>
+        <Label>Notes (optional)</Label>
+        <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Anything else relevant" />
+      </div>
       <Button
         className="w-full"
         disabled={!valid}
-        onClick={() => onSubmit({ requirementId, title, source, scheduledDate, placesRequired, location, provider })}
+        onClick={() => onSubmit({ requirementId, title, source, scheduledDate, placesRequired, location, provider, reason, targetLabel, budget, priority, ownerName, notes })}
       >
         Add to Planned Training
       </Button>

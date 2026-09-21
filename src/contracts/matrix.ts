@@ -44,7 +44,8 @@ export type TrainingRequirement = z.infer<typeof trainingRequirementSchema>;
 
 export const trainingSourceSchema = z.enum([
   "platform_course",
-  "external",
+  "external_manual",
+  "external_api",
   "virtual",
   "at_venue",
 ]);
@@ -67,6 +68,20 @@ export const matrixCellSchema = z.object({
   evidenceUrl: z.string().nullable(),
   cpdHours: z.number().nonnegative().nullable(),
   cost: z.number().nonnegative().nullable(),
+  /** Training Matrix functional brief #6/#7: a certificate/reference
+   * number for external training, and API-import provenance — kept
+   * distinct from evidenceUrl (a file link) since a reference number is
+   * often typed, not uploaded. */
+  certificateNumber: z.string().nullable(),
+  provider: z.string().nullable(),
+  /** Only set when source === "external_api" — #7: "the administrator
+   * should be able to see Imported from: [System Name]". */
+  sourceSystemName: z.string().nullable(),
+  externalCourseId: z.string().nullable(),
+  externalLearnerId: z.string().nullable(),
+  importedAt: isoDateTimeSchema.nullable(),
+  /** #6: free-text notes on a manually-logged external training record. */
+  notes: z.string().nullable(),
   updatedAt: isoDateTimeSchema,
 });
 export type MatrixCell = z.infer<typeof matrixCellSchema>;
@@ -90,11 +105,19 @@ export const matrixViewSchema = z.enum([
   "role",
   "department",
   "training",
+  "future_training",
 ]);
 export type MatrixView = z.infer<typeof matrixViewSchema>;
 
-/** Workforce Planner (M8) — planned training tracks places, not named
- * learners, until attendees are confirmed and it converts to allocations. */
+export const plannedTrainingPrioritySchema = z.enum(["low", "medium", "high"]);
+export type PlannedTrainingPriority = z.infer<typeof plannedTrainingPrioritySchema>;
+
+/** Workforce Planner (M8; Training Matrix brief #4) — planned training
+ * tracks places, not named learners, until attendees are confirmed and
+ * it converts to allocations. Fields below match the brief's worked
+ * example field list (Reason Required, Department/Team, Budget,
+ * Priority, Owner, Notes) — only scheduledDate/placesRequired/source
+ * existed before. */
 export const plannedTrainingSchema = z.object({
   id: idSchema,
   organisationId: idSchema,
@@ -106,6 +129,12 @@ export const plannedTrainingSchema = z.object({
   placesAssigned: z.number().int().nonnegative(),
   location: z.string().nullable(),
   provider: z.string().nullable(),
+  reason: z.string().nullable(),
+  targetLabel: z.string().nullable(),
+  budget: z.number().nonnegative().nullable(),
+  priority: plannedTrainingPrioritySchema,
+  ownerName: z.string().nullable(),
+  notes: z.string().nullable(),
 });
 export type PlannedTraining = z.infer<typeof plannedTrainingSchema>;
 

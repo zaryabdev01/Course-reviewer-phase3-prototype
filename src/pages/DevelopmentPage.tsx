@@ -11,7 +11,7 @@ import { SkeletonRows } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { listDevelopmentItems, listAllocations, listSeatPools } from "@/lib/api/allocations";
 import { useActivePersona } from "@/lib/store/personaStore";
-import { FolderPlus, Sparkles } from "lucide-react";
+import { FolderPlus, Sparkles, MessageCircle } from "lucide-react";
 
 const SOURCE_LABEL: Record<string, string> = {
   synced_organisation: "Synced organisation",
@@ -59,20 +59,23 @@ export function DevelopmentPage() {
             <p className="mb-3 text-sm font-semibold text-ink">Allocated to you by Acme Logistics Ltd</p>
             <div className="space-y-2">
               {myAllocations.map((a) => (
-                <Link
-                  key={a.id}
-                  to={`/course/${a.masterCourseId}/format`}
-                  className="flex items-center justify-between rounded-[10px] border border-line px-3 py-2.5 hover:bg-gray-50"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-ink">{a.masterCourseTitle}</p>
+                <div key={a.id} className="flex items-center justify-between rounded-[10px] border border-line px-3 py-2.5 hover:bg-gray-50">
+                  <Link to={`/course/${a.masterCourseId}/format`} className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-ink">{a.masterCourseTitle}</p>
                     <p className="text-xs text-muted">Due {a.deadline ?? "—"} {a.appearInMatrix && "· Counts toward Training Matrix"}</p>
-                  </div>
-                  <div className="flex items-center gap-3">
+                  </Link>
+                  <div className="flex shrink-0 items-center gap-3">
                     <ProgressBar percent={a.progressPercent} className="w-28" />
                     <Badge tone={a.status === "overdue" ? "danger" : "neutral"}>{a.status.replace("_", " ")}</Badge>
+                    <Link
+                      to={`/messages?course=${encodeURIComponent(a.masterCourseTitle)}`}
+                      title="Ask a question about this course"
+                      className="rounded-[8px] border border-line p-1.5 text-muted hover:bg-gray-100 hover:text-primary-700"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                    </Link>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </CardBody>

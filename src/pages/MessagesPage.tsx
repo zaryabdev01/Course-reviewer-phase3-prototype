@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Badge } from "@/components/ui/Badge";
@@ -28,6 +29,7 @@ type FilterTab = "all" | "shared_inbox" | "qa" | "crm";
 export function MessagesPage() {
   const persona = useActivePersona();
   const push = useToastStore((s) => s.push);
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: threadsData } = useQuery({ queryKey: ["message-threads"], queryFn: listMessageThreads });
 
   const [threads, setThreads] = useState<MessageThread[] | null>(null);
@@ -40,6 +42,39 @@ export function MessagesPage() {
   const [filterTab, setFilterTab] = useState<FilterTab>("all");
   const [composeOpen, setComposeOpen] = useState(false);
   const [draft, setDraft] = useState("");
+
+  // Brief: "on all courses that are allocated a section where questions
+  // can take place between the organisation & team member" — the entry
+  // point is a per-course "Ask a question" link on Development
+  // (?course=<title>), landed on here. Find or create that course's
+  // course_qa thread and select it.
+  const courseParam = searchParams.get("course");
+  useEffect(() => {
+    if (!courseParam || threads === null) return;
+    const existing = threads.find((t) => t.type === "course_qa" && t.courseTitle === courseParam);
+    if (existing) {
+      setActiveId(existing.id);
+    } else {
+      const thread: MessageThread = {
+        id: `t_qa_${Date.now()}`,
+        type: "course_qa",
+        subject: `Question on ${courseParam}`,
+        participants: ["You", "Organisation"],
+        lastMessagePreview: "",
+        lastMessageAt: new Date().toISOString(),
+        unreadCount: 0,
+        courseTitle: courseParam,
+        broadcastAudience: null,
+        segment: null,
+      };
+      setThreads((prev) => [thread, ...(prev ?? [])]);
+      setMessagesByThread((m) => ({ ...m, [thread.id]: [] }));
+      setActiveId(thread.id);
+    }
+    setFilterTab("qa");
+    setSearchParams({}, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [courseParam, threads]);
 
   const filteredThreads = (threads ?? []).filter((t) => {
     if (filterTab === "shared_inbox") return t.type === "org_broadcast";
@@ -63,6 +98,7 @@ export function MessagesPage() {
 
   const isOrgAdmin = persona.accountType === "organisational" && (persona.organisationRole === "org_administrator" || persona.organisationRole === "org_manager");
   const isPlatformAdmin = persona.accountType === "platform_admin" || persona.accountType === "platform_super_admin";
+  const isTeamMember = persona.accountType === "organisational" && persona.organisationRole === "team_member";
 
   function sendMessage() {
     if (!active || !draft.trim()) return;
@@ -78,9 +114,9 @@ export function MessagesPage() {
         title="Messages"
         description="Direct conversations, organisation broadcasts, CRM broadcasts and course Q&A in one hub."
         actions={
-          (isOrgAdmin || isPlatformAdmin) && (
+          (isOrgAdmin || isPlatformAdmin || isTeamMember) && (
             <Button size="sm" onClick={() => setComposeOpen(true)}>
-              <Plus className="h-4 w-4" /> Compose
+              <Plus className="h-4 w-4" /> {isTeamMember ? "Message the organisation" : "Compose"}
             </Button>
           )
         }
@@ -166,6 +202,7 @@ export function MessagesPage() {
         open={composeOpen}
         onClose={() => setComposeOpen(false)}
         allowCrm={isPlatformAdmin}
+        teamMemberMode={isTeamMember}
         onSend={(thread) => {
           setThreads((prev) => [thread, ...(prev ?? [])]);
           setMessagesByThread((m) => ({ ...m, [thread.id]: [] }));
@@ -182,11 +219,13 @@ function ComposeModal({
   open,
   onClose,
   allowCrm,
+  teamMemberMode,
   onSend,
 }: {
   open: boolean;
   onClose: () => void;
   allowCrm: boolean;
+  teamMemberMode: boolean;
   onSend: (thread: MessageThread) => void;
 }) {
   const [kind, setKind] = useState<"org_broadcast" | "crm_broadcast">("org_broadcast");
@@ -196,11 +235,25 @@ function ComposeModal({
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
 
-  const valid = subject.trim() && body.trim() && (kind === "crm_broadcast" || audience === "all_staff" || recipient.trim());
+  const valid = teamMemberMode
+    ? subject.trim() && body.trim()
+    : subject.trim() && body.trim() && (kind === "crm_broadcast" || audience === "all_staff" || recipient.trim());
 
   function submit() {
-    const thread: MessageThread =
-      kind === "org_broadcast"
+    const thread: MessageThread = teamMemberMode
+      ? {
+          id: `t_${Date.now()}`,
+          type: "direct",
+          subject: subject.trim(),
+          participants: ["You", "Organisation"],
+          lastMessagePreview: body.trim(),
+          lastMessageAt: new Date().toISOString(),
+          unreadCount: 0,
+          courseTitle: null,
+          broadcastAudience: null,
+          segment: null,
+        }
+      : kind === "org_broadcast"
         ? {
             id: `t_${Date.now()}`,
             type: "org_broadcast",
@@ -232,9 +285,12 @@ function ComposeModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Compose broadcast" width="max-w-lg">
+    <Modal open={open} onClose={onClose} title={teamMemberMode ? "Message the organisation" : "Compose broadcast"} width="max-w-lg">
       <div className="space-y-4">
-        {allowCrm && (
+        {teamMemberMode && (
+          <p className="text-xs text-muted">Sent directly to your organisation's administrators.</p>
+        )}
+        {!teamMemberMode && allowCrm && (
           <div className="flex gap-2">
             <button
               onClick={() => setKind("org_broadcast")}
@@ -251,7 +307,7 @@ function ComposeModal({
           </div>
         )}
 
-        {kind === "org_broadcast" ? (
+        {teamMemberMode ? null : kind === "org_broadcast" ? (
           <div>
             <Label>Send to</Label>
             <div className="mb-2 flex gap-2">
@@ -292,7 +348,7 @@ function ComposeModal({
           />
         </div>
         <Button className="w-full" disabled={!valid} onClick={submit}>
-          Send {kind === "crm_broadcast" ? "CRM broadcast" : "broadcast"}
+          {teamMemberMode ? "Send message" : `Send ${kind === "crm_broadcast" ? "CRM broadcast" : "broadcast"}`}
         </Button>
       </div>
     </Modal>

@@ -99,7 +99,7 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: "Training Matrix",
+    title: "Training Matrix & Workforce Training Planner",
     items: [
       {
         to: "/matrix",
