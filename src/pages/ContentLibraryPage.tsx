@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -9,8 +9,9 @@ import { Modal } from "@/components/ui/Modal";
 import { Label } from "@/components/ui/Field";
 import { listMasterCourses, listMasterCourseVersions, listFormatVariants } from "@/lib/api/courses";
 import { useToastStore } from "@/lib/store/toastStore";
-import type { MasterCourse } from "@/contracts";
-import { Store, ShieldOff, Upload, Lock, Globe } from "lucide-react";
+import { useActivePersona } from "@/lib/store/personaStore";
+import type { MasterCourse, MasterCourseVersion } from "@/contracts";
+import { Store, ShieldOff, Upload, Lock, Globe, History, Check } from "lucide-react";
 
 export function ContentLibraryPage() {
   const { data: courses } = useQuery({ queryKey: ["master-courses"], queryFn: listMasterCourses });
@@ -29,13 +30,22 @@ export function ContentLibraryPage() {
 }
 
 function ContentCard({ course }: { course: MasterCourse }) {
-  const { data: versions } = useQuery({ queryKey: ["versions", course.id], queryFn: () => listMasterCourseVersions(course.id) });
+  const persona = useActivePersona();
+  const { data: versionsData } = useQuery({ queryKey: ["versions", course.id], queryFn: () => listMasterCourseVersions(course.id) });
   const { data: variants } = useQuery({ queryKey: ["format-variants", course.id], queryFn: () => listFormatVariants(course.id) });
   const push = useToastStore((s) => s.push);
   const [publishOpen, setPublishOpen] = useState(false);
+  const [versionsOpen, setVersionsOpen] = useState(false);
   const [changeNote, setChangeNote] = useState("");
   const [published, setPublished] = useState(false);
   const [visibility, setVisibility] = useState(course.leaseVisibility);
+
+  // Local, mutable copy so publishing a new version actually shows up in
+  // "Manage versions" immediately, not just as a toast.
+  const [versions, setVersions] = useState<MasterCourseVersion[] | null>(null);
+  useEffect(() => {
+    if (versionsData && versions === null) setVersions(versionsData);
+  }, [versionsData, versions]);
 
   const readyVariants = variants?.filter((v) => v.status === "ready").length ?? 0;
 
@@ -76,7 +86,9 @@ function ContentCard({ course }: { course: MasterCourse }) {
         </div>
 
         <div className="mt-4 flex gap-2">
-          <Button size="sm" variant="secondary" className="flex-1">Manage versions</Button>
+          <Button size="sm" variant="secondary" className="flex-1" onClick={() => setVersionsOpen(true)}>
+            <History className="h-3.5 w-3.5" /> Manage versions
+          </Button>
           {course.bypassAiConversion ? (
             <Button
               size="sm"
@@ -118,13 +130,59 @@ function ContentCard({ course }: { course: MasterCourse }) {
             className="w-full"
             disabled={!changeNote.trim()}
             onClick={() => {
+              const newVersion: MasterCourseVersion = {
+                id: `${course.id}_v${course.currentVersion + 1}`,
+                masterCourseId: course.id,
+                versionNumber: course.currentVersion + 1,
+                changeNote: changeNote.trim(),
+                publishedAt: new Date().toISOString(),
+                publishedBy: persona.label.split(" — ")[0],
+                isCurrent: true,
+              };
+              setVersions((prev) => [...(prev ?? []).map((v) => ({ ...v, isCurrent: false })), newVersion]);
               setPublished(true);
               setPublishOpen(false);
-              push(`Published v${course.currentVersion + 1} of "${course.title}" to the Learning Exchange`);
+              setChangeNote("");
+              push(`Published v${newVersion.versionNumber} of "${course.title}" to the Learning Exchange`);
             }}
           >
             Publish version {course.currentVersion + 1}
           </Button>
+        </div>
+      </Modal>
+
+      <Modal
+        open={versionsOpen}
+        onClose={() => setVersionsOpen(false)}
+        title="Version history"
+        description={`"${course.title}" — every published version is immutable; customer leases stay pinned to their agreed version unless auto-update is on (set per lease in the Distribution Hub).`}
+      >
+        <div className="space-y-2">
+          {(versions ?? [])
+            .slice()
+            .sort((a, b) => b.versionNumber - a.versionNumber)
+            .map((v) => (
+              <div
+                key={v.id}
+                className={`flex items-start justify-between gap-3 rounded-[10px] border px-3 py-2.5 ${v.isCurrent ? "border-primary-200 bg-primary-50" : "border-line"}`}
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-ink">Version {v.versionNumber}</p>
+                    {v.isCurrent && (
+                      <Badge tone="brand">
+                        <Check className="mr-1 inline h-3 w-3" /> Current
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-xs text-ink-soft">{v.changeNote}</p>
+                  <p className="mt-1 text-[11px] text-muted">
+                    {new Date(v.publishedAt).toLocaleDateString()} · {v.publishedBy}
+                  </p>
+                </div>
+              </div>
+            ))}
+          {(versions ?? []).length === 0 && <p className="text-sm text-muted">No published versions yet.</p>}
         </div>
       </Modal>
     </Card>
