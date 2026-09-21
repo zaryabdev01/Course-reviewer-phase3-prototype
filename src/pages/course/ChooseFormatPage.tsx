@@ -45,7 +45,7 @@ const FORMAT_CARDS: {
 }[] = [
   { key: "podcast", label: "Podcast", description: "A two-voice conversational walkthrough of the course, with chapters and a transcript — good for listening on the go.", icon: Mic, variantFormat: "podcast" },
   { key: "interactive", label: "Interactive Course", description: "Click-through scenarios and knowledge checks woven between sections, for hands-on learners.", icon: MousePointerClick, variantFormat: "interactive" },
-  { key: "video", label: "Video", description: "A narrated video walkthrough with captions, rendered from the course's structure.", icon: Video, variantFormat: "video" },
+  { key: "video", label: "Video-led", description: "A narrated video walkthrough with captions, rendered from the course's structure.", icon: Video, variantFormat: "video" },
   { key: "animation", label: "Animation", description: "An animated explainer with narration and captions — a lighter-touch alternative to video.", icon: Sparkle, variantFormat: "animation" },
   { key: "reading", label: "Reading", description: "A structured text version with images, read at your own pace in the browser.", icon: BookOpen, variantFormat: "reading" },
   { key: "gamification", label: "Gamification", description: "The Interactive Course, with points, levels, badges and challenges layered on top as you progress.", icon: Trophy, variantFormat: "interactive", gamified: true },
@@ -55,12 +55,12 @@ export function ChooseFormatPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const preferred = params.get("preferred"); // carried forward from Learning Experience Setup, question 1
-  // Question 1's options ("Video-led", "Audio Lesson") don't share exact
-  // wording with these six card labels ("Video" has no card for Audio
-  // Lesson at all) — the client's two lists name formats differently.
-  // Normalise what can be matched rather than silently failing on it.
-  const preferredCardLabel = preferred === "Video-led" ? "Video" : preferred;
+  // Carried forward from Learning Experience Setup, question 1. Card
+  // labels below are now the same wording as that question's options
+  // ("Video-led"), so this matches directly — Audio Lesson is the one
+  // question-1 answer with no corresponding card here, left that way
+  // deliberately for this prototype.
+  const preferred = params.get("preferred");
   const { data: course } = useQuery({ queryKey: ["course", id], queryFn: () => getMasterCourse(id!) });
   const { data: variants } = useQuery({ queryKey: ["format-variants", id], queryFn: () => listFormatVariants(id!) });
 
@@ -86,7 +86,7 @@ export function ChooseFormatPage() {
         {FORMAT_CARDS.map((card) => {
           const Icon = card.icon;
           const variant = variants?.find((v) => v.format === card.variantFormat);
-          const isRecommended = preferredCardLabel === card.label;
+          const isRecommended = preferred === card.label;
           return (
             <Card key={card.key} className={isRecommended ? "flex flex-col ring-2 ring-primary-300" : "flex flex-col"}>
               <CardBody className="flex flex-1 flex-col">
