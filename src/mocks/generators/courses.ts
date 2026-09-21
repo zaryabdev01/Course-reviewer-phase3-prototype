@@ -92,17 +92,27 @@ export const masterCourseVersions: MasterCourseVersion[] = masterCourses.flatMap
   return versions;
 });
 
+/**
+ * The exact 10-question Learning Experience Setup provided by the client
+ * (superseding the earlier tone/depth/language set, which was this
+ * prototype's own invention, not the spec). Setting 1 ("How would you
+ * like to learn today?") is the format preference itself — it's carried
+ * forward to pre-highlight a card on Choose Learning Format rather than
+ * being part of the variant key. Settings 2-10 split content-affecting
+ * (changes what the AI generates) vs render-time-only (changes how the
+ * same generated content is presented) — see LearningSetupPage.
+ */
 export const learningSetupSettings: LearningSetupSetting[] = [
-  { key: "tone", label: "Tone of voice", contentAffecting: true, options: ["Formal", "Conversational", "Encouraging"] },
-  { key: "depth", label: "Depth of coverage", contentAffecting: true, options: ["Overview", "Standard", "In-depth"] },
-  { key: "scenario_style", label: "Scenario style", contentAffecting: true, options: ["Generic", "Sector-specific", "Role-specific"] },
-  { key: "language", label: "Language", contentAffecting: true, options: ["English (UK)", "English (US)", "Welsh"] },
-  { key: "assessment_style", label: "Assessment style", contentAffecting: true, options: ["Multiple choice", "Scenario-based", "Mixed"] },
-  { key: "pace", label: "Pace", contentAffecting: false, options: ["Relaxed", "Standard", "Fast"] },
-  { key: "captions", label: "Captions", contentAffecting: false, options: ["On", "Off"] },
-  { key: "text_size", label: "Larger text", contentAffecting: false, options: ["Standard", "Large", "Extra large"] },
-  { key: "reduced_motion", label: "Reduced motion", contentAffecting: false, options: ["Standard", "Reduced"] },
-  { key: "extra_time", label: "Extra time on assessments", contentAffecting: false, options: ["Standard", "+25%", "+50%"] },
+  { key: "format_preference", label: "How would you like to learn today?", contentAffecting: false, options: ["Interactive Course", "Podcast", "Audio Lesson", "Animation", "Video-led", "Reading", "Choose for me"] },
+  { key: "section_length", label: "How long do you prefer each learning section to be?", contentAffecting: true, options: ["2–3 mins", "5 mins", "10 mins", "Longer sections"] },
+  { key: "learning_style", label: "How do you learn best?", contentAffecting: true, options: ["Real-life scenarios", "Step-by-step explanations", "Visual examples", "Stories/conversations", "Facts & key points", "A mixture"] },
+  { key: "interaction_level", label: "How much interaction would you like?", contentAffecting: true, options: ["Minimal", "Some interaction", "Highly interactive"] },
+  { key: "knowledge_checks", label: "How would you like knowledge checks presented?", contentAffecting: true, options: ["Quick questions throughout", "Scenario decisions", "End-of-section quizzes", "Mainly final assessment", "Mixed"] },
+  { key: "explanation_level", label: "What level of explanation suits you?", contentAffecting: true, options: ["Simple & concise", "Balanced", "Detailed", "Explain unfamiliar terms"] },
+  { key: "pace", label: "What pace would you like?", contentAffecting: false, options: ["Quick", "Normal", "Take my time"] },
+  { key: "emphasis", label: "How would you like important information highlighted?", contentAffecting: true, options: ["Key-point summaries", "Visual callouts", "Examples", "Repeat important points", "All of these"] },
+  { key: "accessibility", label: "Would anything make the course easier to use?", contentAffecting: false, options: ["Captions", "Transcript", "Audio narration", "Larger text", "Reduced animation/movement", "Plain English", "Extra time for activities", "None"] },
+  { key: "ai_focus", label: "What would you like AI to focus on for you?", contentAffecting: true, options: ["Passing the assessment", "Understanding the subject", "Applying it at work", "Building confidence", "Remembering key information", "Personalise it for me"] },
 ];
 
 export const learningSetupTemplates: LearningSetupTemplate[] = [
@@ -111,7 +121,11 @@ export const learningSetupTemplates: LearningSetupTemplate[] = [
     name: "Platform default",
     ownerName: "System",
     isDefault: true,
-    values: { tone: "Conversational", depth: "Standard", scenario_style: "Generic", language: "English (UK)", assessment_style: "Mixed", pace: "Standard", captions: "On", text_size: "Standard", reduced_motion: "Standard", extra_time: "Standard" },
+    values: {
+      format_preference: "Choose for me", section_length: "5 mins", learning_style: "A mixture", interaction_level: "Some interaction",
+      knowledge_checks: "Mixed", explanation_level: "Balanced", pace: "Normal", emphasis: "All of these",
+      accessibility: "None", ai_focus: "Understanding the subject",
+    },
     createdAt: "2025-01-01T00:00:00Z",
   },
   {
@@ -119,7 +133,11 @@ export const learningSetupTemplates: LearningSetupTemplate[] = [
     name: "Warehouse & Ops (Acme)",
     ownerName: "Priya Nair",
     isDefault: false,
-    values: { tone: "Encouraging", depth: "Overview", scenario_style: "Role-specific", language: "English (UK)", assessment_style: "Scenario-based", pace: "Standard", captions: "On", text_size: "Standard", reduced_motion: "Standard", extra_time: "Standard" },
+    values: {
+      format_preference: "Video-led", section_length: "2–3 mins", learning_style: "Real-life scenarios", interaction_level: "Highly interactive",
+      knowledge_checks: "Scenario decisions", explanation_level: "Simple & concise", pace: "Quick", emphasis: "Visual callouts",
+      accessibility: "Captions, Larger text", ai_focus: "Applying it at work",
+    },
     createdAt: "2025-11-10T09:00:00Z",
   },
   {
@@ -127,7 +145,11 @@ export const learningSetupTemplates: LearningSetupTemplate[] = [
     name: "Accessible / low-vision",
     ownerName: "Priya Nair",
     isDefault: false,
-    values: { tone: "Formal", depth: "Standard", scenario_style: "Generic", language: "English (UK)", assessment_style: "Multiple choice", pace: "Relaxed", captions: "On", text_size: "Extra large", reduced_motion: "Reduced", extra_time: "+50%" },
+    values: {
+      format_preference: "Audio Lesson", section_length: "Longer sections", learning_style: "Step-by-step explanations", interaction_level: "Minimal",
+      knowledge_checks: "Mainly final assessment", explanation_level: "Explain unfamiliar terms", pace: "Take my time", emphasis: "Repeat important points",
+      accessibility: "Captions, Transcript, Audio narration, Larger text, Reduced animation/movement, Extra time for activities", ai_focus: "Building confidence",
+    },
     createdAt: "2026-02-18T09:00:00Z",
   },
 ];

@@ -17,6 +17,7 @@ export function ConversionStatusPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const formatParam = params.get("format") as LearningFormat | "auto" | null;
+  const gamified = params.get("gamified") === "1";
 
   const { data: course } = useQuery({ queryKey: ["course", id], queryFn: () => getMasterCourse(id!) });
   const { data: variants } = useQuery({ queryKey: ["format-variants", id], queryFn: () => listFormatVariants(id!) });
@@ -89,7 +90,7 @@ export function ConversionStatusPage() {
           )}
 
           <div className="mt-6 flex justify-end">
-            <Button disabled={stage !== "ready"} onClick={() => navigate(`/course/${id}/player?format=${format}`)}>
+            <Button disabled={stage !== "ready"} onClick={() => navigate(`/course/${id}/player?format=${format}${gamified ? "&gamified=1" : ""}`)}>
               {stage === "ready" ? "Open course" : "Preparing…"}
             </Button>
           </div>

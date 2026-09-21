@@ -74,9 +74,11 @@ function ContentCard({ course }: { course: MasterCourse }) {
             </Button>
           )}
         </div>
-        <Link to={`/course/${course.id}/readiness`} className="mt-2 block text-center text-xs font-medium text-primary-700">
-          Prepare AI formats →
-        </Link>
+        {!course.bypassAiConversion && (
+          <Link to={`/course/${course.id}/readiness`} className="mt-2 block">
+            <Button size="sm" variant="secondary" className="w-full">Learning Experience Setup →</Button>
+          </Link>
+        )}
       </CardBody>
 
       <Modal

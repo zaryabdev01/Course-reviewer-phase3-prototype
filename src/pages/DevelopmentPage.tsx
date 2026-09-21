@@ -129,11 +129,11 @@ export function DevelopmentPage() {
                 <p className="text-sm font-semibold text-ink">{item.title}</p>
                 <p className="mb-3 text-xs text-muted">{item.sourceLabel}</p>
                 <ProgressBar percent={item.progressPercent} />
-                <div className="mt-3 flex items-center justify-between">
-                  <Link to={`/course/${item.masterCourseId}/readiness`} className="flex items-center gap-1 text-xs font-medium text-primary-700">
-                    <Sparkles className="h-3.5 w-3.5" /> Prepare & choose format
-                  </Link>
-                </div>
+                <Link to={`/course/${item.masterCourseId}/readiness`} className="mt-3 block">
+                  <Button size="sm" variant="secondary" className="w-full">
+                    <Sparkles className="h-3.5 w-3.5" /> Learning Experience Setup
+                  </Button>
+                </Link>
               </CardBody>
             </Card>
           ))}

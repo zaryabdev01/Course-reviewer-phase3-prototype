@@ -76,6 +76,7 @@ export function CoursePlayerPage() {
   const { id } = useParams<{ id: string }>();
   const [params] = useSearchParams();
   const format = (params.get("format") as LearningFormat) ?? "reading";
+  const gamified = params.get("gamified") === "1";
   const Icon = FORMAT_ICON[format];
   const persona = useActivePersona();
   const push = useToastStore((s) => s.push);
@@ -224,7 +225,8 @@ export function CoursePlayerPage() {
           </label>
         </div>
 
-        <div className="mt-5 rounded-[10px] border border-line p-3">
+        <div className={gamified ? "mt-5 rounded-[10px] border-2 border-warning-dark/30 bg-warning-soft p-3" : "mt-5 rounded-[10px] border border-line p-3"}>
+          {gamified && <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-warning-dark">Gamified course</p>}
           <div className="mb-1.5 flex items-center justify-between">
             <p className="flex items-center gap-1.5 text-xs font-semibold text-ink"><Trophy className="h-3.5 w-3.5 text-warning-dark" /> Level {levelForPoints(gami.points)}</p>
             <span className="text-xs text-muted">{gami.points} pts</span>
