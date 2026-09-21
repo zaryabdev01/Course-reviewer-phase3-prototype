@@ -18,6 +18,10 @@ export const downloadJobSchema = z.object({
   readyAt: isoDateTimeSchema.nullable(),
   fileSizeKb: z.number().int().nonnegative().nullable(),
   requestedBy: z.string(),
+  /** A real, client-side-generated CSV blob URL for jobs created this
+   * session — null for seeded history, which has no backing file to
+   * honestly hand over. */
+  fileUrl: z.string().nullable(),
 });
 export type DownloadJob = z.infer<typeof downloadJobSchema>;
 

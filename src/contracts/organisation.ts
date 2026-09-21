@@ -39,6 +39,7 @@ export const customGroupSchema = z.object({
   id: idSchema,
   organisationId: idSchema,
   name: z.string(),
+  memberIds: z.array(idSchema),
   memberCount: z.number().int().nonnegative(),
   createdAt: isoDateTimeSchema,
 });

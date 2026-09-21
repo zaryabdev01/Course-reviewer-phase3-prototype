@@ -62,5 +62,9 @@ export const developmentItemSchema = z.object({
   sourceLabel: z.string(),
   addedAt: isoDateTimeSchema,
   progressPercent: z.number().min(0).max(100),
+  /** SCORM/xAPI courses (brief): "these just function as normal courses
+   * that do not use AI & require no input from the end user to use" —
+   * skip Readiness/Learning Setup/Choose Format and launch directly. */
+  bypassAiConversion: z.boolean(),
 });
 export type DevelopmentItem = z.infer<typeof developmentItemSchema>;

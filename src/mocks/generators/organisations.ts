@@ -125,9 +125,9 @@ export function buildJobRoles(organisationId: string): JobRole[] {
 
 export function buildCustomGroups(organisationId: string): CustomGroup[] {
   return [
-    { id: `${organisationId}_grp_forklift`, organisationId, name: "Forklift Certified", memberCount: 0, createdAt: "2025-11-02T10:00:00Z" },
-    { id: `${organisationId}_grp_newstarters`, organisationId, name: "New Starters 2026", memberCount: 0, createdAt: "2026-01-05T10:00:00Z" },
-    { id: `${organisationId}_grp_nightshift`, organisationId, name: "Night Shift", memberCount: 0, createdAt: "2025-08-14T10:00:00Z" },
+    { id: `${organisationId}_grp_forklift`, organisationId, name: "Forklift Certified", memberIds: [], memberCount: 0, createdAt: "2025-11-02T10:00:00Z" },
+    { id: `${organisationId}_grp_newstarters`, organisationId, name: "New Starters 2026", memberIds: [], memberCount: 0, createdAt: "2026-01-05T10:00:00Z" },
+    { id: `${organisationId}_grp_nightshift`, organisationId, name: "Night Shift", memberIds: [], memberCount: 0, createdAt: "2025-08-14T10:00:00Z" },
   ];
 }
 

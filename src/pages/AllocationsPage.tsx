@@ -171,13 +171,15 @@ export function AllocationsPage() {
           groups={groups ?? []}
           courses={courses ?? []}
           onSubmit={(values) => {
-            const target = values.targetType === "group"
-              ? groups?.find((g) => g.id === values.targetId)
-              : learners.find((l) => l.id === values.targetId);
             const course = courses?.find((c) => c.id === values.courseId);
-            if (!target || !course) return;
-            const newAlloc: Allocation = {
-              id: `alloc_new_${Date.now()}`,
+            if (!course || values.targetIds.length === 0) return;
+            const targets = values.targetType === "group"
+              ? (groups ?? []).filter((g) => values.targetIds.includes(g.id))
+              : learners.filter((l) => values.targetIds.includes(l.id));
+            if (targets.length === 0) return;
+            const now = new Date().toISOString();
+            const newAllocs: Allocation[] = targets.map((target, i) => ({
+              id: `alloc_new_${Date.now()}_${i}`,
               organisationId: orgId,
               masterCourseId: course.id,
               masterCourseTitle: course.title,
@@ -190,14 +192,18 @@ export function AllocationsPage() {
               appearInMatrix: values.appearInMatrix,
               status: "assigned",
               progressPercent: 0,
-              allocatedAt: new Date().toISOString(),
+              allocatedAt: now,
               allocatedBy: persona.email,
               seatConsumed: true,
-              history: [{ at: new Date().toISOString(), action: "allocated", by: persona.email }],
-            };
-            setRows((prev) => [newAlloc, ...(prev ?? [])]);
+              history: [{ at: now, action: "allocated", by: persona.email }],
+            }));
+            setRows((prev) => [...newAllocs, ...(prev ?? [])]);
             setCreateOpen(false);
-            push(`Allocated "${course.title}" to ${newAlloc.targetLabel}`);
+            push(
+              newAllocs.length === 1
+                ? `Allocated "${course.title}" to ${newAllocs[0].targetLabel}`
+                : `Allocated "${course.title}" to ${newAllocs.length} learners`,
+            );
           }}
         />
       </Modal>
@@ -265,7 +271,7 @@ function AllocationForm({
   courses: { id: string; title: string; availableFormats: LearningFormat[] }[];
   onSubmit: (v: {
     targetType: "learner" | "group";
-    targetId: string;
+    targetIds: string[];
     courseId: string;
     deadline: string;
     appearInMatrix: boolean;
@@ -274,7 +280,8 @@ function AllocationForm({
   }) => void;
 }) {
   const [targetType, setTargetType] = useState<"learner" | "group">("learner");
-  const [targetId, setTargetId] = useState("");
+  const [learnerIds, setLearnerIds] = useState<Set<string>>(new Set());
+  const [groupId, setGroupId] = useState("");
   const [courseId, setCourseId] = useState("");
   const [deadline, setDeadline] = useState("");
   const [appearInMatrix, setAppearInMatrix] = useState(true);
@@ -282,7 +289,16 @@ function AllocationForm({
   const [fixedFormat, setFixedFormat] = useState<LearningFormat>("reading");
 
   const selectedCourse = courses.find((c) => c.id === courseId);
-  const valid = targetId && courseId;
+  const targetIds = targetType === "learner" ? Array.from(learnerIds) : groupId ? [groupId] : [];
+  const valid = targetIds.length > 0 && courseId;
+
+  function toggleLearner(id: string) {
+    setLearnerIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
 
   return (
     <div className="space-y-4">
@@ -290,24 +306,35 @@ function AllocationForm({
         <Label>Allocate to</Label>
         <div className="mb-2 flex gap-2">
           <button
-            onClick={() => { setTargetType("learner"); setTargetId(""); }}
+            onClick={() => { setTargetType("learner"); setGroupId(""); }}
             className={`rounded-[8px] border px-3 py-1.5 text-xs font-medium ${targetType === "learner" ? "border-primary-300 bg-primary-50 text-primary-700" : "border-line text-muted"}`}
           >
-            Learner
+            Learner(s)
           </button>
           <button
-            onClick={() => { setTargetType("group"); setTargetId(""); }}
+            onClick={() => { setTargetType("group"); setLearnerIds(new Set()); }}
             className={`rounded-[8px] border px-3 py-1.5 text-xs font-medium ${targetType === "group" ? "border-primary-300 bg-primary-50 text-primary-700" : "border-line text-muted"}`}
           >
             Group
           </button>
         </div>
-        <Select value={targetId} onChange={(e) => setTargetId(e.target.value)}>
-          <option value="">Select {targetType === "learner" ? "a learner" : "a group"}…</option>
-          {(targetType === "learner" ? learners : groups).map((t) => (
-            <option key={t.id} value={t.id}>{"fullName" in t ? t.fullName : t.name}</option>
-          ))}
-        </Select>
+        {targetType === "learner" ? (
+          <>
+            <div className="max-h-44 space-y-1 overflow-y-auto rounded-[8px] border border-line p-2">
+              {learners.slice(0, 60).map((l) => (
+                <label key={l.id} className="flex items-center gap-2 rounded-[6px] px-2 py-1 text-sm hover:bg-gray-50">
+                  <input type="checkbox" checked={learnerIds.has(l.id)} onChange={() => toggleLearner(l.id)} /> {l.fullName}
+                </label>
+              ))}
+            </div>
+            <p className="mt-1 text-xs text-muted">{learnerIds.size} selected</p>
+          </>
+        ) : (
+          <Select value={groupId} onChange={(e) => setGroupId(e.target.value)}>
+            <option value="">Select a group…</option>
+            {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+          </Select>
+        )}
       </div>
 
       <div>
@@ -355,9 +382,9 @@ function AllocationForm({
       <Button
         className="w-full"
         disabled={!valid}
-        onClick={() => onSubmit({ targetType, targetId, courseId, deadline, appearInMatrix, formatChoice, fixedFormat: formatChoice === "fixed" ? fixedFormat : null })}
+        onClick={() => onSubmit({ targetType, targetIds, courseId, deadline, appearInMatrix, formatChoice, fixedFormat: formatChoice === "fixed" ? fixedFormat : null })}
       >
-        Create allocation
+        Create allocation{targetType === "learner" && learnerIds.size > 1 ? `s (${learnerIds.size})` : ""}
       </Button>
     </div>
   );

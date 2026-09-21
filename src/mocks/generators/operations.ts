@@ -80,6 +80,7 @@ export function buildDevelopmentItems(count: number): DevelopmentItem[] {
     sourceLabel: faker.helpers.arrayElement(["Acme Logistics Ltd", "Purchased — Learning Exchange", "Added from Content Library"]),
     addedAt: faker.date.past({ years: 1 }).toISOString(),
     progressPercent: faker.number.int({ min: 0, max: 100 }),
+    bypassAiConversion: c.bypassAiConversion,
   }));
 }
 

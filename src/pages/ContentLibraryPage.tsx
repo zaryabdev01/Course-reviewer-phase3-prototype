@@ -93,7 +93,7 @@ function ContentCard({ course }: { course: MasterCourse }) {
         </div>
         {!course.bypassAiConversion && (
           <Link to={`/course/${course.id}/readiness`} className="mt-2 block">
-            <Button size="sm" variant="secondary" className="w-full">Learning Experience Setup →</Button>
+            <Button size="sm" variant="secondary" className="w-full">Preview Learner Journey →</Button>
           </Link>
         )}
       </CardBody>

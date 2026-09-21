@@ -118,7 +118,7 @@ export const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: "Distribution Hub",
+    title: "Training Distribution Hub",
     items: [
       {
         to: "/distribution-hub",

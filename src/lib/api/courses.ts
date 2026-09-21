@@ -1,6 +1,6 @@
 import { db } from "@/mocks/db";
 import { delay } from "./client";
-import type { ReadinessCheckResult } from "@/contracts";
+import type { ReadinessAnswers, ReadinessCheckResult } from "@/contracts";
 
 export async function listMasterCourses() {
   return delay(db.masterCourses);
@@ -26,29 +26,40 @@ export async function listLearningSetupTemplates() {
   return delay(db.learningSetupTemplates);
 }
 
-/** Readiness Check (M4): 8 questions, rule-based scoring — no AI cost, per
- * the milestone doc's Technical Details. `yesCount` out of 8 drives the
- * outcome. */
+/** Readiness Check: a learner wellness check ("How is your energy level
+ * right now?", "Are you hydrated?" etc.), not a content-quality one —
+ * rule-based scoring, no AI cost, straight from the client's own spec.
+ * Each suggestion maps to one of the five the brief names verbatim
+ * (drink water, quick snack, quieter place, short break, return later). */
 export async function submitReadinessCheck(
   masterCourseId: string,
-  yesCount: number,
+  answers: ReadinessAnswers,
 ): Promise<ReadinessCheckResult> {
-  const outcome = yesCount >= 6 ? "ready" : "needs_prep";
-  const suggestions =
-    outcome === "ready"
-      ? []
-      : [
-          "Add a named line manager sign-off step before allocation.",
-          "Attach at least one sector-specific scenario in Learning Setup.",
-          "Confirm assessment pass mark with your compliance lead.",
-        ];
+  const suggestions: string[] = [];
+  if (answers.hydrated === "could_use_water") suggestions.push("Drink some water");
+  if (answers.eaten === "no" || answers.energy === "low") suggestions.push("Have a quick snack");
+  if (answers.environment !== "yes") suggestions.push("Move somewhere quieter");
+  if (answers.rested === "poorly" || answers.stress === "high") suggestions.push("Take a short break");
+  if (answers.readyToStart !== "ready_now") suggestions.push("Return when you can focus properly");
+
+  const flagCount = [
+    answers.energy === "low",
+    answers.eaten === "no",
+    answers.hydrated === "could_use_water",
+    answers.rested === "poorly",
+    answers.attention === "no",
+    answers.environment === "no",
+    answers.stress === "high",
+    answers.readyToStart !== "ready_now",
+  ].filter(Boolean).length;
+  const outcome = flagCount === 0 ? "ready" : "needs_prep";
+
   return delay(
     {
       id: `readiness_${masterCourseId}_${Date.now()}`,
       masterCourseId,
       outcome,
-      answeredCount: yesCount,
-      suggestions,
+      suggestions: Array.from(new Set(suggestions)),
       completedAt: new Date().toISOString(),
     },
     500,

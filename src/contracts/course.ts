@@ -112,13 +112,32 @@ export const formatVariantSchema = z.object({
 });
 export type FormatVariant = z.infer<typeof formatVariantSchema>;
 
+/**
+ * Readiness Check — the client's own spec: a learner wellness check
+ * ("How is your energy level right now?", "Are you hydrated?" etc.)
+ * shown the moment someone goes to do a course, not a content-quality
+ * checklist. Rule-based scoring, no AI cost, exactly like the earlier
+ * (wrong) version this replaced — only the eight questions and their
+ * options changed, taken verbatim from the client's brief.
+ */
+export const readinessAnswersSchema = z.object({
+  energy: z.enum(["low", "okay", "good", "high"]),
+  eaten: z.enum(["yes", "no", "not_sure"]),
+  hydrated: z.enum(["yes", "could_use_water"]),
+  rested: z.enum(["poorly", "okay", "well"]),
+  attention: z.enum(["yes", "mostly", "no"]),
+  environment: z.enum(["yes", "some_distractions", "no"]),
+  stress: z.enum(["low", "moderate", "high"]),
+  readyToStart: z.enum(["ready_now", "break_5", "break_10", "come_back_later"]),
+});
+export type ReadinessAnswers = z.infer<typeof readinessAnswersSchema>;
+
 export const readinessOutcomeSchema = z.enum(["ready", "needs_prep"]);
 
 export const readinessCheckResultSchema = z.object({
   id: idSchema,
   masterCourseId: idSchema,
   outcome: readinessOutcomeSchema,
-  answeredCount: z.number().int().min(0).max(8),
   suggestions: z.array(z.string()),
   completedAt: isoDateTimeSchema,
 });

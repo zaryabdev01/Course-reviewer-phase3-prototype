@@ -42,7 +42,19 @@ export function DownloadsPage() {
                     </td>
                     <td className="px-5 py-2.5 text-muted">{j.fileSizeKb ? `${j.fileSizeKb} KB` : "—"}</td>
                     <td className="px-5 py-2.5 text-right">
-                      <Button size="sm" variant="secondary" disabled={j.status !== "ready"}>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={j.status !== "ready" || !j.fileUrl}
+                        title={j.status === "ready" && !j.fileUrl ? "Seeded history — no file attached in this demo" : undefined}
+                        onClick={() => {
+                          if (!j.fileUrl) return;
+                          const a = document.createElement("a");
+                          a.href = j.fileUrl;
+                          a.download = `${j.label}.csv`;
+                          a.click();
+                        }}
+                      >
                         <Download className="h-3.5 w-3.5" /> Download
                       </Button>
                     </td>

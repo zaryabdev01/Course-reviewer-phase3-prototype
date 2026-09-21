@@ -10,8 +10,9 @@ import { Button } from "@/components/ui/Button";
 import { SkeletonRows } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { listDevelopmentItems, listAllocations, listSeatPools } from "@/lib/api/allocations";
+import { listMasterCourses } from "@/lib/api/courses";
 import { useActivePersona } from "@/lib/store/personaStore";
-import { FolderPlus, Sparkles, MessageCircle } from "lucide-react";
+import { FolderPlus, Sparkles, MessageCircle, PlayCircle } from "lucide-react";
 
 const SOURCE_LABEL: Record<string, string> = {
   synced_organisation: "Synced organisation",
@@ -35,9 +36,14 @@ export function DevelopmentPage() {
     queryFn: () => listAllocations(persona.organisationId!),
     enabled: !!persona.organisationId,
   });
+  const { data: masterCourses } = useQuery({ queryKey: ["master-courses"], queryFn: listMasterCourses });
 
   const filtered = items?.filter((i) => sourceFilter === "all" || i.source === sourceFilter) ?? [];
   const myAllocations = allocations?.filter((a) => a.status !== "completed").slice(0, 12) ?? [];
+  // SCORM/xAPI courses (brief): "function as normal courses that do not
+  // use AI & require no input from the end user" — launch straight to
+  // the player instead of Readiness → Learning Setup → Choose Format.
+  const bypassMap = new Map((masterCourses ?? []).map((c) => [c.id, c.bypassAiConversion]));
 
   return (
     <>
@@ -60,7 +66,10 @@ export function DevelopmentPage() {
             <div className="space-y-2">
               {myAllocations.map((a) => (
                 <div key={a.id} className="flex items-center justify-between rounded-[10px] border border-line px-3 py-2.5 hover:bg-gray-50">
-                  <Link to={`/course/${a.masterCourseId}/format`} className="min-w-0 flex-1">
+                  <Link
+                    to={bypassMap.get(a.masterCourseId) ? `/course/${a.masterCourseId}/player` : `/course/${a.masterCourseId}/readiness`}
+                    className="min-w-0 flex-1"
+                  >
                     <p className="truncate text-sm font-medium text-ink">{a.masterCourseTitle}</p>
                     <p className="text-xs text-muted">Due {a.deadline ?? "—"} {a.appearInMatrix && "· Counts toward Training Matrix"}</p>
                   </Link>
@@ -130,11 +139,15 @@ export function DevelopmentPage() {
                   {item.progressPercent === 100 && <Badge tone="success">Completed</Badge>}
                 </div>
                 <p className="text-sm font-semibold text-ink">{item.title}</p>
-                <p className="mb-3 text-xs text-muted">{item.sourceLabel}</p>
+                <p className="mb-3 text-xs text-muted">{item.sourceLabel}{item.bypassAiConversion && " · SCORM/xAPI"}</p>
                 <ProgressBar percent={item.progressPercent} />
-                <Link to={`/course/${item.masterCourseId}/readiness`} className="mt-3 block">
+                <Link
+                  to={item.bypassAiConversion ? `/course/${item.masterCourseId}/player` : `/course/${item.masterCourseId}/readiness`}
+                  className="mt-3 block"
+                >
                   <Button size="sm" variant="secondary" className="w-full">
-                    <Sparkles className="h-3.5 w-3.5" /> Learning Experience Setup
+                    {item.bypassAiConversion ? <PlayCircle className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
+                    {item.bypassAiConversion ? "Launch Course" : "Start Course"}
                   </Button>
                 </Link>
               </CardBody>

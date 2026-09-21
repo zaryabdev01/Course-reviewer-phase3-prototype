@@ -14,10 +14,10 @@ import { masterCourses } from "./courses";
 const faker = freshFaker();
 
 export const downloadJobs: DownloadJob[] = [
-  { id: "dl_1", label: "Overall Training Report — Sep 2026", reportType: "overall", status: "ready", requestedAt: "2026-09-17T08:12:00Z", readyAt: "2026-09-17T08:14:00Z", fileSizeKb: 812, requestedBy: "Priya Nair" },
-  { id: "dl_2", label: "Warehouse Operations — Group Report", reportType: "group", status: "processing", requestedAt: "2026-09-18T09:40:00Z", readyAt: null, fileSizeKb: null, requestedBy: "Priya Nair" },
-  { id: "dl_3", label: "Revenue & Cost Report — Q3 2026", reportType: "revenue", status: "queued", requestedAt: "2026-09-18T09:41:00Z", readyAt: null, fileSizeKb: null, requestedBy: "Priya Nair" },
-  { id: "dl_4", label: "Sam Okafor — Learner Report", reportType: "learner", status: "ready", requestedAt: "2026-09-16T14:02:00Z", readyAt: "2026-09-16T14:02:30Z", fileSizeKb: 96, requestedBy: "Priya Nair" },
+  { id: "dl_1", label: "Overall Training Report — Sep 2026", reportType: "overall", status: "ready", requestedAt: "2026-09-17T08:12:00Z", readyAt: "2026-09-17T08:14:00Z", fileSizeKb: 812, requestedBy: "Priya Nair", fileUrl: null },
+  { id: "dl_2", label: "Warehouse Operations — Group Report", reportType: "group", status: "processing", requestedAt: "2026-09-18T09:40:00Z", readyAt: null, fileSizeKb: null, requestedBy: "Priya Nair", fileUrl: null },
+  { id: "dl_3", label: "Revenue & Cost Report — Q3 2026", reportType: "revenue", status: "queued", requestedAt: "2026-09-18T09:41:00Z", readyAt: null, fileSizeKb: null, requestedBy: "Priya Nair", fileUrl: null },
+  { id: "dl_4", label: "Sam Okafor — Learner Report", reportType: "learner", status: "ready", requestedAt: "2026-09-16T14:02:00Z", readyAt: "2026-09-16T14:02:30Z", fileSizeKb: 96, requestedBy: "Priya Nair", fileUrl: null },
 ];
 
 export function buildTrainingReportRows(count: number): TrainingReportRow[] {
