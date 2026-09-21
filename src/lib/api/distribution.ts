@@ -16,3 +16,7 @@ export async function listDeployments() {
 export async function listUsageAlerts() {
   return delay(db.usageAlerts);
 }
+
+export async function listLeaseRequests() {
+  return delay(db.leaseRequests);
+}

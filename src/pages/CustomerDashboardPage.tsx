@@ -36,6 +36,8 @@ export function CustomerDashboardPage() {
   const totalRevenue = leases.reduce((s, l) => s + l.price, 0);
   const totalLicences = leases.reduce((s, l) => s + l.licencesTotal, 0);
   const totalUsed = leases.reduce((s, l) => s + l.licencesUsed, 0);
+  const totalLaunched = leases.reduce((s, l) => s + l.learnersLaunched, 0);
+  const totalCompletions = leases.reduce((s, l) => s + l.completions, 0);
   const color = leases[0]?.customerLogoColor ?? "#16a34a";
 
   return (
@@ -45,11 +47,15 @@ export function CustomerDashboardPage() {
       </Link>
       <PageHeader
         title={customerName}
-        description="Owner dashboard — every lease, deployment and alert for this customer in one place."
+        description={
+          leases[0]
+            ? `Contact: ${leases[0].contactPersonName} (${leases[0].contactPersonEmail}) — every lease, deployment and alert for this customer in one place.`
+            : "Owner dashboard — every lease, deployment and alert for this customer in one place."
+        }
         actions={<div className="h-9 w-9 rounded-[10px]" style={{ backgroundColor: color }} />}
       />
 
-      <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardBody>
             <p className="text-xs font-medium text-muted">Active leases</p>
@@ -61,6 +67,13 @@ export function CustomerDashboardPage() {
             <p className="text-xs font-medium text-muted">Licences in use</p>
             <p className="mt-1.5 text-2xl font-semibold text-ink">{totalUsed}/{totalLicences}</p>
             <ProgressBar percent={totalLicences ? (totalUsed / totalLicences) * 100 : 0} className="mt-2" />
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <p className="text-xs font-medium text-muted">Completions</p>
+            <p className="mt-1.5 text-2xl font-semibold text-ink">{totalCompletions}</p>
+            <p className="mt-1 text-xs text-muted">of {totalLaunched} learners launched</p>
           </CardBody>
         </Card>
         <Card>
@@ -89,8 +102,11 @@ export function CustomerDashboardPage() {
             <thead>
               <tr className="border-b border-line text-left text-xs text-muted">
                 <th className="px-5 py-3">Course</th>
-                <th className="px-5 py-3">Billing</th>
                 <th className="px-5 py-3">Delivery</th>
+                <th className="px-5 py-3">Launched</th>
+                <th className="px-5 py-3">Completions</th>
+                <th className="px-5 py-3">Start</th>
+                <th className="px-5 py-3">Expiry</th>
                 <th className="px-5 py-3">Access</th>
                 <th className="px-5 py-3">Status</th>
               </tr>
@@ -98,9 +114,15 @@ export function CustomerDashboardPage() {
             <tbody>
               {leases.map((l) => (
                 <tr key={l.id} className="border-b border-line last:border-0">
-                  <td className="px-5 py-2.5 font-medium text-ink">{l.masterCourseTitle}</td>
-                  <td className="px-5 py-2.5 text-ink-soft">{LEASE_BILLING_LABELS[l.billingModel]}</td>
+                  <td className="px-5 py-2.5 font-medium text-ink">
+                    {l.masterCourseTitle} <span className="text-xs font-normal text-muted">v{l.pinnedVersion}</span>
+                    <p className="text-xs font-normal text-muted">{LEASE_BILLING_LABELS[l.billingModel]}</p>
+                  </td>
                   <td className="px-5 py-2.5 text-ink-soft">{DELIVERY_METHOD_LABELS[l.deliveryMethod]}</td>
+                  <td className="px-5 py-2.5 text-ink-soft">{l.learnersLaunched}</td>
+                  <td className="px-5 py-2.5 text-ink-soft">{l.completions}</td>
+                  <td className="px-5 py-2.5 text-muted">{l.startDate}</td>
+                  <td className="px-5 py-2.5 text-muted">{l.endDate ?? "No expiry"}</td>
                   <td className="px-5 py-2.5">
                     {l.hasClientOverlay && <Badge tone="brand">Client overlay</Badge>}
                     {l.allowedIps.length > 0 && <Badge tone="neutral" className="ml-1"><ShieldCheck className="mr-1 inline h-3 w-3" />IP-locked</Badge>}

@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/Field";
 import { listMasterCourses, listMasterCourseVersions, listFormatVariants } from "@/lib/api/courses";
 import { useToastStore } from "@/lib/store/toastStore";
 import type { MasterCourse } from "@/contracts";
-import { Store, ShieldOff, Upload } from "lucide-react";
+import { Store, ShieldOff, Upload, Lock, Globe } from "lucide-react";
 
 export function ContentLibraryPage() {
   const { data: courses } = useQuery({ queryKey: ["master-courses"], queryFn: listMasterCourses });
@@ -35,6 +35,7 @@ function ContentCard({ course }: { course: MasterCourse }) {
   const [publishOpen, setPublishOpen] = useState(false);
   const [changeNote, setChangeNote] = useState("");
   const [published, setPublished] = useState(false);
+  const [visibility, setVisibility] = useState(course.leaseVisibility);
 
   const readyVariants = variants?.filter((v) => v.status === "ready").length ?? 0;
 
@@ -58,6 +59,22 @@ function ContentCard({ course }: { course: MasterCourse }) {
             <Badge tone={readyVariants > 0 ? "success" : "neutral"}>{readyVariants} of {course.availableFormats.length} formats generated</Badge>
           )}
         </div>
+
+        <div className="mt-3 flex rounded-[10px] bg-gray-100 p-1 text-xs">
+          <button
+            onClick={() => setVisibility("private")}
+            className={`flex flex-1 items-center justify-center gap-1 rounded-[8px] py-1.5 font-medium ${visibility === "private" ? "bg-white text-ink shadow-sm" : "text-muted"}`}
+          >
+            <Lock className="h-3 w-3" /> Private
+          </button>
+          <button
+            onClick={() => setVisibility("leasable")}
+            className={`flex flex-1 items-center justify-center gap-1 rounded-[8px] py-1.5 font-medium ${visibility === "leasable" ? "bg-white text-ink shadow-sm" : "text-muted"}`}
+          >
+            <Globe className="h-3 w-3" /> Available for Leasing
+          </button>
+        </div>
+
         <div className="mt-4 flex gap-2">
           <Button size="sm" variant="secondary" className="flex-1">Manage versions</Button>
           {course.bypassAiConversion ? (

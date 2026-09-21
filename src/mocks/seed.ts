@@ -16,6 +16,11 @@ export function freshFaker() {
 
 export const ORG_ACME_ID = "org_acme";
 export const ORG_BRIGHTPATH_ID = "org_brightpath";
+/** Acme's biggest lease customer (see mocks/generators/distribution.ts) —
+ * seeded as a real, lightweight organisation so there's a persona that
+ * can experience the Distribution Hub as the *customer* leasing a
+ * course, not only as the owner leasing it out. */
+export const ORG_NORTHFIELD_ID = "org_northfield";
 
 export const SECTORS = [
   "Health & Safety",

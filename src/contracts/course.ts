@@ -63,6 +63,10 @@ export const masterCourseSchema = z.object({
   thumbnailColor: z.string(),
   priceCredits: z.number().int().nonnegative().nullable(),
   isFree: z.boolean(),
+  /** Course Marketplace (Distribution Hub spec #10) — whether other
+   * organisations can find and lease this course at all. "private"
+   * courses never appear in leaseListings regardless of anything else. */
+  leaseVisibility: z.enum(["private", "leasable"]),
 });
 export type MasterCourse = z.infer<typeof masterCourseSchema>;
 

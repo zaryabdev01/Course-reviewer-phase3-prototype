@@ -43,6 +43,12 @@ export const notifications: NotificationItem[] = [
   { id: "n6", category: "qa", title: "New question on GDPR & Data Protection", body: "Sam Okafor asked a question on their allocated course.", read: true, createdAt: "2026-09-13T15:30:00Z", actionHref: "/messages" },
   { id: "n7", category: "lease_alert", title: "Northfield Retail Group is near its licence limit", body: "92% of purchased licences are in use.", read: false, createdAt: "2026-09-18T07:00:00Z", actionHref: "/distribution-hub/leases" },
   { id: "n8", category: "system", title: "Scheduled maintenance — 22 Sep, 02:00 BST", body: "Expect brief downtime while we deploy platform updates.", read: true, createdAt: "2026-09-10T09:00:00Z", actionHref: null },
+  // Creator notifications (Distribution Hub spec #18) — the remaining
+  // four example types alongside n7's licence-threshold alert above.
+  { id: "n9", category: "lease_alert", title: "First learner has started your course", body: "Someone at Harbour View Care Homes just launched Fire Safety Awareness for the first time.", read: false, createdAt: "2026-09-17T13:20:00Z", actionHref: "/distribution-hub/customers/Harbour%20View%20Care%20Homes" },
+  { id: "n10", category: "lease_alert", title: "Castlegate Council has 30 days remaining", body: "Their lease of Forklift Operation & Safety expires 18 Oct 2026 — reach out before it lapses.", read: false, createdAt: "2026-09-15T09:00:00Z", actionHref: "/distribution-hub/customers/Castlegate%20Council" },
+  { id: "n11", category: "lease_alert", title: "New leasing request", body: "Oakfield Logistics Group requested a quote for 600 learners.", read: false, createdAt: "2026-09-12T14:05:00Z", actionHref: "/distribution-hub/requests" },
+  { id: "n12", category: "lease_alert", title: "Your course generated £2,450 this month", body: "Lease usage revenue across all customers, September 2026.", read: true, createdAt: "2026-09-01T09:00:00Z", actionHref: "/billing" },
 ];
 
 export const messageThreads: MessageThread[] = [
@@ -83,29 +89,48 @@ export const revenueLines: RevenueLine[] = [
   { month: "Sep 2026", grossRevenue: 29800, platformFees: 4470, hostingCost: 1310, aiCost: 3760, netEarnings: 20260 },
 ];
 
+const GENERAL_ACTIONS = [
+  "Allocated course to learner",
+  "Reallocated course",
+  "Marked completion",
+  "Set renewal date",
+  "Invited team member",
+  "Changed organisation role",
+  "Exported Matrix report",
+  "Bulk allocated to group",
+];
+
+// The ten granular lease lifecycle events from the Distribution Hub spec
+// (#17, Audit Trail) — previously only 2 of these existed as loggable
+// actions ("Created lease", "Paused lease").
+const LEASE_ACTIONS = [
+  "Lease created",
+  "Lease terms agreed",
+  "Lease payment received",
+  "Deployment package downloaded",
+  "Course launched under lease",
+  "Learner completed leased course",
+  "Lease licence count increased",
+  "Leased course updated to new version",
+  "Lease access suspended",
+  "Lease renewed",
+];
+
 export function buildAuditLog(count: number): AuditLogEntry[] {
-  const actions = [
-    "Allocated course to learner",
-    "Reallocated course",
-    "Marked completion",
-    "Set renewal date",
-    "Created lease",
-    "Paused lease",
-    "Invited team member",
-    "Changed organisation role",
-    "Exported Matrix report",
-    "Bulk allocated to group",
-  ];
-  return Array.from({ length: count }, (_, i) => ({
-    id: `audit_log_${i}`,
-    actorName: faker.person.fullName(),
-    actorRole: faker.helpers.arrayElement(["Org Administrator", "Org Manager", "Platform Admin"]),
-    action: faker.helpers.arrayElement(actions),
-    entityType: faker.helpers.arrayElement(["allocation", "completion", "renewal", "matrix_requirement", "lease", "user", "organisation"] as const),
-    entityLabel: faker.helpers.arrayElement(masterCourses).title,
-    previousValue: faker.helpers.arrayElement(["Required", "Allocated", null]),
-    newValue: faker.helpers.arrayElement(["Completed", "In Progress", "Renewal Due"]),
-    at: faker.date.recent({ days: 30 }).toISOString(),
-    ipAddress: faker.internet.ip(),
-  })).sort((a, b) => b.at.localeCompare(a.at));
+  return Array.from({ length: count }, (_, i) => {
+    const entityType = faker.helpers.arrayElement(["allocation", "completion", "renewal", "matrix_requirement", "lease", "user", "organisation"] as const);
+    const action = entityType === "lease" ? faker.helpers.arrayElement(LEASE_ACTIONS) : faker.helpers.arrayElement(GENERAL_ACTIONS);
+    return {
+      id: `audit_log_${i}`,
+      actorName: faker.person.fullName(),
+      actorRole: faker.helpers.arrayElement(["Org Administrator", "Org Manager", "Platform Admin"]),
+      action,
+      entityType,
+      entityLabel: faker.helpers.arrayElement(masterCourses).title,
+      previousValue: faker.helpers.arrayElement(["Required", "Allocated", null]),
+      newValue: faker.helpers.arrayElement(["Completed", "In Progress", "Renewal Due"]),
+      at: faker.date.recent({ days: 30 }).toISOString(),
+      ipAddress: faker.internet.ip(),
+    };
+  }).sort((a, b) => b.at.localeCompare(a.at));
 }

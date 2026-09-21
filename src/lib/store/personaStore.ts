@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Persona } from "@/contracts";
-import { ORG_ACME_ID, ORG_BRIGHTPATH_ID } from "@/mocks/seed";
+import { ORG_ACME_ID, ORG_BRIGHTPATH_ID, ORG_NORTHFIELD_ID } from "@/mocks/seed";
 
 /**
  * Dev-only "act as" switcher. There is no auth in this prototype — every
@@ -55,6 +55,15 @@ export const PERSONAS: Persona[] = [
     organisationRole: "org_administrator",
     avatarColor: "#4f39f6",
     email: "daniel.osei@brightpathcare.co.uk",
+  },
+  {
+    id: "northfield_admin",
+    label: "James Whitfield — Org Administrator (Northfield Retail Group)",
+    accountType: "organisational",
+    organisationId: ORG_NORTHFIELD_ID,
+    organisationRole: "org_administrator",
+    avatarColor: "#0d9488",
+    email: "james.whitfield@northfieldretail.com",
   },
   {
     id: "platform_admin",

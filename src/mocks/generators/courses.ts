@@ -65,6 +65,7 @@ export const masterCourses: MasterCourse[] = COURSE_TITLES.map((title, i) => {
     ]),
     priceCredits: bypass ? null : faker.number.int({ min: 40, max: 320 }),
     isFree: faker.datatype.boolean({ probability: 0.2 }),
+    leaseVisibility: bypass ? "private" : faker.helpers.weightedArrayElement([{ value: "leasable" as const, weight: 6 }, { value: "private" as const, weight: 4 }]),
   };
 });
 

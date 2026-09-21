@@ -7,7 +7,7 @@ import type {
   OrgSyncRequest,
   CsvImportRow,
 } from "@/contracts";
-import { freshFaker, ORG_ACME_ID, ORG_BRIGHTPATH_ID, pickAvatarColor } from "../seed";
+import { freshFaker, ORG_ACME_ID, ORG_BRIGHTPATH_ID, ORG_NORTHFIELD_ID, pickAvatarColor } from "../seed";
 
 const faker = freshFaker();
 
@@ -29,6 +29,18 @@ export const organisations: Organisation[] = [
     seatCount: 40,
     learnerCount: 27,
     createdAt: "2025-09-03T09:00:00Z",
+  },
+  {
+    // Acme's largest lease customer (see mocks/generators/distribution.ts)
+    // — a real seeded organisation so there's a persona to experience
+    // the Distribution Hub as the customer, not only the owner.
+    id: ORG_NORTHFIELD_ID,
+    name: "Northfield Retail Group",
+    logoColor: "#0d9488",
+    industry: "Retail",
+    seatCount: 200,
+    learnerCount: 40,
+    createdAt: "2026-03-12T09:00:00Z",
   },
 ];
 
@@ -128,13 +140,20 @@ export function buildMembers(
   const teamUnits = orgUnits.filter((u) => u.type === "team");
   const members: OrgMember[] = [];
 
+  const ADMIN_IDENTITY: Record<string, { fullName: string; email: string }> = {
+    [ORG_ACME_ID]: { fullName: "Priya Nair", email: "priya.nair@acmelogistics.co.uk" },
+    [ORG_BRIGHTPATH_ID]: { fullName: "Daniel Osei", email: "daniel.osei@brightpathcare.co.uk" },
+    [ORG_NORTHFIELD_ID]: { fullName: "James Whitfield", email: "james.whitfield@northfieldretail.com" },
+  };
+  const adminIdentity = ADMIN_IDENTITY[organisationId] ?? { fullName: faker.person.fullName(), email: faker.internet.email().toLowerCase() };
+
   const adminId = `${organisationId}_u_admin`;
   members.push({
     id: adminId,
     organisationId,
     userId: adminId,
-    fullName: organisationId === ORG_ACME_ID ? "Priya Nair" : "Daniel Osei",
-    email: organisationId === ORG_ACME_ID ? "priya.nair@acmelogistics.co.uk" : "daniel.osei@brightpathcare.co.uk",
+    fullName: adminIdentity.fullName,
+    email: adminIdentity.email,
     role: "org_administrator",
     jobRoleId: null,
     orgUnitId: null,

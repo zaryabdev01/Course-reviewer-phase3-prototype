@@ -1,4 +1,4 @@
-import { ORG_ACME_ID, ORG_BRIGHTPATH_ID } from "./seed";
+import { ORG_ACME_ID, ORG_BRIGHTPATH_ID, ORG_NORTHFIELD_ID } from "./seed";
 import {
   organisations,
   buildOrgUnits,
@@ -16,7 +16,7 @@ import {
 } from "./generators/courses";
 import { buildAllocations, buildSeatPools, buildDevelopmentItems } from "./generators/operations";
 import { buildRequirements, buildMatrixCells, buildAuditTrail, buildPlannedTraining, buildTrainingGaps } from "./generators/matrix";
-import { leases, leaseListings, deployments, usageAlerts } from "./generators/distribution";
+import { leases, leaseListings, deployments, usageAlerts, leaseRequests } from "./generators/distribution";
 import {
   downloadJobs,
   buildTrainingReportRows,
@@ -44,16 +44,21 @@ function buildDb() {
   const bpGroups = buildCustomGroups(ORG_BRIGHTPATH_ID);
   const bpMembers = buildMembers(ORG_BRIGHTPATH_ID, 24, bpOrgUnits, bpJobRoles);
 
+  const nfOrgUnits = buildOrgUnits(ORG_NORTHFIELD_ID);
+  const nfJobRoles = buildJobRoles(ORG_NORTHFIELD_ID);
+  const nfGroups = buildCustomGroups(ORG_NORTHFIELD_ID);
+  const nfMembers = buildMembers(ORG_NORTHFIELD_ID, 18, nfOrgUnits, nfJobRoles);
+
   const acmeRequirements = buildRequirements(ORG_ACME_ID);
   const acmeLearners = acmeMembers.filter((m) => m.role === "team_member" && m.status !== "left");
   const acmeMatrixCells = buildMatrixCells(ORG_ACME_ID, acmeLearners, acmeRequirements, acmeOrgUnits, acmeJobRoles);
 
   return {
     organisations,
-    orgUnits: { [ORG_ACME_ID]: acmeOrgUnits, [ORG_BRIGHTPATH_ID]: bpOrgUnits } as Record<string, typeof acmeOrgUnits>,
-    jobRoles: { [ORG_ACME_ID]: acmeJobRoles, [ORG_BRIGHTPATH_ID]: bpJobRoles } as Record<string, typeof acmeJobRoles>,
-    customGroups: { [ORG_ACME_ID]: acmeGroups, [ORG_BRIGHTPATH_ID]: bpGroups } as Record<string, typeof acmeGroups>,
-    members: { [ORG_ACME_ID]: acmeMembers, [ORG_BRIGHTPATH_ID]: bpMembers } as Record<string, typeof acmeMembers>,
+    orgUnits: { [ORG_ACME_ID]: acmeOrgUnits, [ORG_BRIGHTPATH_ID]: bpOrgUnits, [ORG_NORTHFIELD_ID]: nfOrgUnits } as Record<string, typeof acmeOrgUnits>,
+    jobRoles: { [ORG_ACME_ID]: acmeJobRoles, [ORG_BRIGHTPATH_ID]: bpJobRoles, [ORG_NORTHFIELD_ID]: nfJobRoles } as Record<string, typeof acmeJobRoles>,
+    customGroups: { [ORG_ACME_ID]: acmeGroups, [ORG_BRIGHTPATH_ID]: bpGroups, [ORG_NORTHFIELD_ID]: nfGroups } as Record<string, typeof acmeGroups>,
+    members: { [ORG_ACME_ID]: acmeMembers, [ORG_BRIGHTPATH_ID]: bpMembers, [ORG_NORTHFIELD_ID]: nfMembers } as Record<string, typeof acmeMembers>,
     orgSyncRequests,
 
     masterCourses,
@@ -76,6 +81,7 @@ function buildDb() {
     leaseListings,
     deployments,
     usageAlerts,
+    leaseRequests,
 
     downloadJobs,
     trainingReportRows: buildTrainingReportRows(140),

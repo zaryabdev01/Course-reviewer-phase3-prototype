@@ -17,6 +17,7 @@ import { Check } from "lucide-react";
 const leaseFormSchema = z.object({
   masterCourseId: z.string().min(1, "Choose a course to lease"),
   customerName: z.string().min(2, "Customer name is required"),
+  contactPersonName: z.string().min(2, "Contact person is required"),
   billingModel: z.custom<LeaseBillingModel>(),
   price: z.number({ error: "Enter a price" }).positive("Price must be greater than 0"),
   licencesTotal: z.number({ error: "Enter a licence count" }).int().positive("Must be at least 1 licence"),
@@ -70,7 +71,7 @@ export function CreateLeaseWizardPage() {
   const selectedCourse = courses?.find((c) => c.id === values.masterCourseId);
 
   const stepFields: Record<number, (keyof LeaseFormValues)[]> = {
-    0: ["masterCourseId", "customerName"],
+    0: ["masterCourseId", "customerName", "contactPersonName"],
     1: ["billingModel", "price", "licencesTotal", "startDate"],
     2: ["deliveryMethod", "allowedCountries"],
     3: ["reportFrequency"],
@@ -136,6 +137,11 @@ export function CreateLeaseWizardPage() {
                 <Label>Customer name</Label>
                 <Input placeholder="e.g. Northfield Retail Group" {...register("customerName")} />
                 {errors.customerName && <p className="mt-1 text-xs text-danger">{errors.customerName.message}</p>}
+              </div>
+              <div>
+                <Label>Contact person</Label>
+                <Input placeholder="e.g. James Whitfield" {...register("contactPersonName")} />
+                {errors.contactPersonName && <p className="mt-1 text-xs text-danger">{errors.contactPersonName.message}</p>}
               </div>
             </>
           )}
@@ -249,6 +255,7 @@ export function CreateLeaseWizardPage() {
             <div className="space-y-3 text-sm">
               <Row label="Course" value={selectedCourse?.title ?? "—"} />
               <Row label="Customer" value={values.customerName} />
+              <Row label="Contact person" value={values.contactPersonName} />
               <Row label="Billing" value={`${LEASE_BILLING_LABELS[values.billingModel]} — £${values.price || 0}`} />
               <Row label="Licences" value={String(values.licencesTotal)} />
               <Row label="Delivery" value={DELIVERY_METHOD_LABELS[values.deliveryMethod]} />

@@ -13,6 +13,8 @@ import { WorkforcePlannerPage } from "@/pages/WorkforcePlannerPage";
 import { DistributionHubPage } from "@/pages/DistributionHubPage";
 import { CreateLeaseWizardPage } from "@/pages/CreateLeaseWizardPage";
 import { CustomerDashboardPage } from "@/pages/CustomerDashboardPage";
+import { MyLeasedCoursesPage } from "@/pages/MyLeasedCoursesPage";
+import { LeasingRequestsPage } from "@/pages/LeasingRequestsPage";
 import { ReportsPage } from "@/pages/ReportsPage";
 import { DownloadsPage } from "@/pages/DownloadsPage";
 import { MessagesPage } from "@/pages/MessagesPage";
@@ -46,6 +48,8 @@ export const router = createBrowserRouter([
       { path: "/distribution-hub", element: <DistributionHubPage /> },
       { path: "/distribution-hub/create", element: <CreateLeaseWizardPage /> },
       { path: "/distribution-hub/customers/:name", element: <CustomerDashboardPage /> },
+      { path: "/distribution-hub/requests", element: <LeasingRequestsPage /> },
+      { path: "/my-leased-courses", element: <MyLeasedCoursesPage /> },
       { path: "/reports", element: <ReportsPage /> },
       { path: "/downloads", element: <DownloadsPage /> },
       { path: "/messages", element: <MessagesPage /> },

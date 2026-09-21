@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Building,
   UserCog,
+  PackageOpen,
 } from "lucide-react";
 import type { ComponentType } from "react";
 
@@ -125,6 +126,13 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: Share2,
         accountTypes: ["organisational"],
         orgRoles: ["org_administrator"],
+      },
+      {
+        to: "/my-leased-courses",
+        label: "My Leased Courses",
+        icon: PackageOpen,
+        accountTypes: ["organisational"],
+        orgRoles: ["org_administrator", "org_manager"],
       },
     ],
   },
