@@ -58,8 +58,12 @@ export const leases: Lease[] = CUSTOMER_NAMES.flatMap((customer, ci) =>
       endDate: faker.datatype.boolean({ probability: 0.6 }) ? faker.date.soon({ days: 300 }).toISOString().slice(0, 10) : null,
       allowedCountries: faker.helpers.arrayElements(["GB", "IE", "US", "AU", "CA"], { min: 1, max: 3 }),
       allowedDomains: [`@${customer.toLowerCase().replace(/[^a-z]/g, "")}.com`],
+      allowedIps: faker.datatype.boolean({ probability: 0.35 })
+        ? [faker.internet.ipv4() + "/24", faker.internet.ipv4() + "/32"]
+        : [],
       certificatesEnabled: faker.datatype.boolean({ probability: 0.8 }),
       autoUpdateVersions: faker.datatype.boolean({ probability: 0.5 }),
+      hasClientOverlay: faker.datatype.boolean({ probability: 0.4 }),
       createdAt: faker.date.past({ years: 1 }).toISOString(),
     };
   }),

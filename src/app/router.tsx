@@ -12,6 +12,7 @@ import { MatrixPage } from "@/pages/MatrixPage";
 import { WorkforcePlannerPage } from "@/pages/WorkforcePlannerPage";
 import { DistributionHubPage } from "@/pages/DistributionHubPage";
 import { CreateLeaseWizardPage } from "@/pages/CreateLeaseWizardPage";
+import { CustomerDashboardPage } from "@/pages/CustomerDashboardPage";
 import { ReportsPage } from "@/pages/ReportsPage";
 import { DownloadsPage } from "@/pages/DownloadsPage";
 import { MessagesPage } from "@/pages/MessagesPage";
@@ -20,6 +21,7 @@ import { BillingPage } from "@/pages/BillingPage";
 import { AuditLogPage } from "@/pages/AuditLogPage";
 import { PlatformOrganisationsPage } from "@/pages/platform/PlatformOrganisationsPage";
 import { PlatformUsersPage } from "@/pages/platform/PlatformUsersPage";
+import { AdminMonitorsPage } from "@/pages/platform/AdminMonitorsPage";
 
 import { ReadinessCheckPage } from "@/pages/course/ReadinessCheckPage";
 import { LearningSetupPage } from "@/pages/course/LearningSetupPage";
@@ -43,6 +45,7 @@ export const router = createBrowserRouter([
       { path: "/workforce", element: <WorkforcePlannerPage /> },
       { path: "/distribution-hub", element: <DistributionHubPage /> },
       { path: "/distribution-hub/create", element: <CreateLeaseWizardPage /> },
+      { path: "/distribution-hub/customers/:name", element: <CustomerDashboardPage /> },
       { path: "/reports", element: <ReportsPage /> },
       { path: "/downloads", element: <DownloadsPage /> },
       { path: "/messages", element: <MessagesPage /> },
@@ -51,6 +54,7 @@ export const router = createBrowserRouter([
       { path: "/audit-log", element: <AuditLogPage /> },
       { path: "/platform/organisations", element: <PlatformOrganisationsPage /> },
       { path: "/platform/users", element: <PlatformUsersPage /> },
+      { path: "/platform/monitors", element: <AdminMonitorsPage /> },
 
       { path: "/course/:id/readiness", element: <ReadinessCheckPage /> },
       { path: "/course/:id/learning-setup", element: <LearningSetupPage /> },

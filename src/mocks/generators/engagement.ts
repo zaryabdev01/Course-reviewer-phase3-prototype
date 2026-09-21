@@ -46,10 +46,13 @@ export const notifications: NotificationItem[] = [
 ];
 
 export const messageThreads: MessageThread[] = [
-  { id: "t1", type: "org_broadcast", subject: "Q4 compliance push", participants: ["Priya Nair", "All Staff"], lastMessagePreview: "Please complete your outstanding Fire Safety training by end of month.", lastMessageAt: "2026-09-17T10:00:00Z", unreadCount: 0, courseTitle: null },
-  { id: "t2", type: "course_qa", subject: "Question on GDPR & Data Protection Refresher", participants: ["Sam Okafor", "Priya Nair"], lastMessagePreview: "Does this cover the new UK GDPR amendments?", lastMessageAt: "2026-09-13T15:30:00Z", unreadCount: 1, courseTitle: "GDPR & Data Protection Refresher" },
-  { id: "t3", type: "direct", subject: "Peer review feedback", participants: ["Jordan Blake", "You"], lastMessagePreview: "Left some notes on module 4, take a look when you can.", lastMessageAt: "2026-09-11T09:12:00Z", unreadCount: 0, courseTitle: null },
-  { id: "t4", type: "peer_review", subject: "Review request: Manual Handling Essentials", participants: ["You", "Freelancer: Kate Lin"], lastMessageAt: "2026-09-08T13:00:00Z", lastMessagePreview: "Accepted — delivery by Friday.", unreadCount: 0, courseTitle: "Manual Handling Essentials" },
+  { id: "t1", type: "org_broadcast", subject: "Q4 compliance push", participants: ["Priya Nair", "All Staff"], lastMessagePreview: "Please complete your outstanding Fire Safety training by end of month.", lastMessageAt: "2026-09-17T10:00:00Z", unreadCount: 0, courseTitle: null, broadcastAudience: "all_staff", segment: null },
+  { id: "t2", type: "course_qa", subject: "Question on GDPR & Data Protection Refresher", participants: ["Sam Okafor", "Priya Nair"], lastMessagePreview: "Does this cover the new UK GDPR amendments?", lastMessageAt: "2026-09-13T15:30:00Z", unreadCount: 1, courseTitle: "GDPR & Data Protection Refresher", broadcastAudience: null, segment: null },
+  { id: "t3", type: "direct", subject: "Peer review feedback", participants: ["Jordan Blake", "You"], lastMessagePreview: "Left some notes on module 4, take a look when you can.", lastMessageAt: "2026-09-11T09:12:00Z", unreadCount: 0, courseTitle: null, broadcastAudience: null, segment: null },
+  { id: "t4", type: "peer_review", subject: "Review request: Manual Handling Essentials", participants: ["You", "Freelancer: Kate Lin"], lastMessageAt: "2026-09-08T13:00:00Z", lastMessagePreview: "Accepted — delivery by Friday.", unreadCount: 0, courseTitle: "Manual Handling Essentials", broadcastAudience: null, segment: null },
+  { id: "t5", type: "org_broadcast", subject: "Warehouse Ops — new PPE policy", participants: ["Priya Nair", "Warehouse Operations (Dept)"], lastMessagePreview: "Effective Monday, hi-vis is mandatory on the Manchester DC floor.", lastMessageAt: "2026-09-15T08:30:00Z", unreadCount: 0, courseTitle: null, broadcastAudience: "group", segment: null },
+  { id: "t6", type: "crm_broadcast", subject: "New: Podcast format now live", participants: ["All end users"], lastMessagePreview: "You can now generate any course as a podcast — try it from Choose Learning Format.", lastMessageAt: "2026-09-10T09:00:00Z", unreadCount: 0, courseTitle: null, broadcastAudience: null, segment: "All active users" },
+  { id: "t7", type: "crm_broadcast", subject: "We miss you — come back to a free credit top-up", participants: ["Inactive 30+ days"], lastMessagePreview: "It's been a while — here's 50 free credits to pick up where you left off.", lastMessageAt: "2026-09-05T09:00:00Z", unreadCount: 0, courseTitle: null, broadcastAudience: null, segment: "Inactive 30+ days" },
 ];
 
 export const messagesByThread: Record<string, Message[]> = {
@@ -68,6 +71,7 @@ export const invoices: Invoice[] = [
   { id: "inv_3", organisationId: "org_acme", label: "Lease usage — Harbour View Care Homes, Sep 2026", amount: 1260, currency: "GBP", status: "due", issuedAt: "2026-09-18T09:00:00Z", dueAt: "2026-10-02T09:00:00Z", kind: "lease_usage" },
   { id: "inv_4", organisationId: null, label: "Credit top-up — 500 credits", amount: 250, currency: "GBP", status: "paid", issuedAt: "2026-09-05T09:00:00Z", dueAt: "2026-09-05T09:00:00Z", kind: "credit_topup" },
   { id: "inv_5", organisationId: "org_acme", label: "Seller payout — Learning Exchange sales", amount: 640, currency: "GBP", status: "paid", issuedAt: "2026-09-10T09:00:00Z", dueAt: "2026-09-10T09:00:00Z", kind: "payout" },
+  { id: "inv_6", organisationId: "org_acme", label: "Lease usage — Meridian Construction plc, Aug 2026", amount: 1480, currency: "GBP", status: "overdue", issuedAt: "2026-08-24T09:00:00Z", dueAt: "2026-09-07T09:00:00Z", kind: "lease_usage" },
 ];
 
 export const revenueLines: RevenueLine[] = [

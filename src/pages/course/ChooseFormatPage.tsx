@@ -6,7 +6,18 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { getMasterCourse, listFormatVariants } from "@/lib/api/courses";
 import { FORMAT_LABELS, type LearningFormat } from "@/contracts";
-import { BookOpen, MousePointerClick, Mic, Headphones, Video, Sparkle, Wand2 } from "lucide-react";
+import { BookOpen, MousePointerClick, Mic, Headphones, Video, Sparkle, Wand2, Coins } from "lucide-react";
+
+/** Rough, clearly-labelled cost estimate from the metered generation
+ * figures (M4: "cost metering per generation ... for revenue and cost
+ * reporting"). Token/TTS rates are illustrative, not a real pricing
+ * table — the point is that a per-generation $ figure exists and is
+ * visible, which the prototype previously modelled but never displayed. */
+function estimateCost(costTokens: number | null, costTtsCharacters: number | null): number | null {
+  if (costTokens) return (costTokens / 1000) * 0.006;
+  if (costTtsCharacters) return costTtsCharacters * 0.000015;
+  return null;
+}
 
 const FORMAT_ICON: Record<LearningFormat, typeof BookOpen> = {
   reading: BookOpen,
@@ -66,6 +77,16 @@ export function ChooseFormatPage() {
                     <Badge tone="neutral">Not generated yet</Badge>
                   )}
                 </div>
+                {variant?.status === "ready" && (
+                  <p className="mt-1.5 flex items-center gap-1 text-[11px] text-muted">
+                    <Coins className="h-3 w-3" />
+                    {variant.reused
+                      ? "£0.00 — served from cache, no AI call"
+                      : `£${(estimateCost(variant.costTokens, variant.costTtsCharacters) ?? 0).toFixed(3)} — ${
+                          variant.costTokens ? `${variant.costTokens.toLocaleString()} tokens` : `${variant.costTtsCharacters?.toLocaleString()} TTS chars`
+                        }`}
+                  </p>
+                )}
                 <Link to={`/course/${id}/convert?format=${format}`} className="mt-4">
                   <Button className="w-full" size="sm">
                     {variant?.status === "ready" ? "Open" : "Generate"}

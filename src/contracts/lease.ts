@@ -69,8 +69,15 @@ export const leaseSchema = z.object({
   endDate: z.string().nullable(),
   allowedCountries: z.array(z.string()),
   allowedDomains: z.array(z.string()),
+  /** IP/CIDR allowlist — M9: "domain/country/IP limits". GeoIP lookup is
+   * the real enforcement mechanism; here it's just the configured list. */
+  allowedIps: z.array(z.string()),
   certificatesEnabled: z.boolean(),
   autoUpdateVersions: z.boolean(),
+  /** Client-specific overlay on the master (branding/policy applied at
+   * render time) — M9: "Client-specific versions as overlays on the
+   * master". False = the customer sees the master as published. */
+  hasClientOverlay: z.boolean(),
   createdAt: isoDateTimeSchema,
 });
 export type Lease = z.infer<typeof leaseSchema>;

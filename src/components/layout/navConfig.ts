@@ -197,6 +197,12 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: UserCog,
         accountTypes: ["platform_admin", "platform_super_admin"],
       },
+      {
+        to: "/platform/monitors",
+        label: "Admin Monitors",
+        icon: ShieldCheck,
+        accountTypes: ["platform_admin", "platform_super_admin"],
+      },
     ],
   },
 ];
